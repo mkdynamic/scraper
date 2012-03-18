@@ -14,6 +14,8 @@ npm install scraper
 scraper [--port 8888]
 ```
 
+Will start as many processes as there as CPU cores.
+
 ## API
 
 ```
