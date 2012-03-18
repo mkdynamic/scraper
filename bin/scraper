@@ -4,6 +4,7 @@ var scraper = require('../lib/scraper.js');
 var cluster = require('cluster');
 var os = require('os');
 
+// TODO parse arg for port
 var CONFIG = { port: 8888 };
 
 if (cluster.isMaster) {
