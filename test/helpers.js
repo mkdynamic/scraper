@@ -1,6 +1,4 @@
 var scraper = require('../lib/scraper.js');
-var vows = require('vows');
-var assert = require('assert');
 var reqwest = require('request');
 var http = require('http');
 var url = require('url');
@@ -9,7 +7,10 @@ var _ = require('underscore');
 // scraper server
 var CONFIG = { port: 8888 };
 var server = new scraper.Server(CONFIG);
-server.start();
+server.start(function() {
+    console.log('>>> Server started on port ' + CONFIG.port);
+});
+exports.server = server;
 
 // dummy site
 var DUMMY_SITE_CONFIG = { port: 8889 };
@@ -22,6 +23,7 @@ DummySite.prototype = {
 
     start: function() {
         this._server.listen(this._config.port);
+        console.log('>>> Dummy site running on port ' + this._config.port);
     },
 
     _handler: function(request, response) {
@@ -64,10 +66,10 @@ dummySite.routes = {
     ]
 };
 dummySite.start();
+exports.dummySite = dummySite;
 
 // helpers
-var helpers = {};
-helpers.requestTopic = function(url) {
+exports.requestTopic = function(url) {
     return function() {
         var query = '?url=' + encodeURIComponent(url);
 
@@ -81,22 +83,3 @@ helpers.requestTopic = function(url) {
         );
     };
 };
-
-// test suite
-var test = vows.describe('GET /1.0/images').addBatch({
-    'a site with a bunch of images': {
-        topic: helpers.requestTopic('http://0.0.0.0:' + DUMMY_SITE_CONFIG.port + '/foo/bar.html'),
-
-        'returns an Array containing unqiue fully qualified image URLS as JSON': function(error, response, body) {
-            var expected = [
-                'http://a248.e.akamai.net/assets.github.com/images/modules/about_page/github_logo.png',
-                'http://0.0.0.0:' + DUMMY_SITE_CONFIG.port + '/foo.png',
-                'http://0.0.0.0:' + DUMMY_SITE_CONFIG.port + '/gyp/foo.png'
-            ];
-
-            assert.deepEqual(JSON.parse(body), expected);
-        }
-    }
-});
-
-test.export(module);
