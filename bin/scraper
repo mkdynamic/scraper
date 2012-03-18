@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var scraper = require('../lib/scraper.js');
+var cluster = require('cluster');
+var os = require('os');
+
+var CONFIG = { port: 8888 };
+
+if (cluster.isMaster) {
+  for (var i = 0; i < os.cpus().length; i++) cluster.fork();
+} else {
+  var server = new scraper.Server(CONFIG);
+  server.start(function() {
+      console.log('>>> Server started on port ' + CONFIG.port + ' with PID ' + process.pid);
+  });
+}

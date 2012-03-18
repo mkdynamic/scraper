@@ -21,6 +21,14 @@ var DummySite = function(config) {
 DummySite.prototype = {
     routes: {},
 
+    url: function(path) {
+        var uri = url.parse(path, true);
+        uri.protocol = 'http';
+        uri.hostname = '0.0.0.0';
+        uri.port = this._config.port;
+        return url.format(uri);
+    },
+
     start: function() {
         this._server.listen(this._config.port);
         console.log('>>> Dummy site running on port ' + this._config.port);
@@ -48,23 +56,6 @@ DummySite.prototype = {
     }
 };
 var dummySite = new DummySite(DUMMY_SITE_CONFIG);
-dummySite.routes = {
-    '/foo/bar.html': [
-        200,
-        { 'Content-Type': 'text/html' },
-        '<html><body>' +
-        '<img src="http://a248.e.akamai.net/assets.github.com/images/modules/about_page/github_logo.png" />' +
-        '<img src="/foo.png" />' +
-        '<img src="../foo.png" />' +
-        '<img src="../gyp/foo.png" />' +
-        '</body></html>'
-    ],
-    '/foo.png': [
-        200,
-        { 'Content-Type': 'image/png' },
-        'MA IMAGE'
-    ]
-};
 dummySite.start();
 exports.dummySite = dummySite;
 
